@@ -30,7 +30,7 @@ export async function generateBlueprint(payload) {
       },
       body: JSON.stringify(payload),
     })
-  } catch (_networkError) {
+  } catch {
     const targetDesc = API_BASE ? API_BASE : 'backend service'
     throw {
       message: `Could not connect to the Spring Boot API (${targetDesc}). Please verify the server is running and CORS allows this domain.`,
@@ -42,7 +42,7 @@ export async function generateBlueprint(payload) {
   let data
   try {
     data = await response.json()
-  } catch (_parseError) {
+  } catch {
     throw {
       message: `Backend returned HTTP ${response.status} with an unparseable response.`,
       fieldErrors: {},
