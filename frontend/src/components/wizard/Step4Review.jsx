@@ -16,10 +16,10 @@ const TIMELINE_LABELS = {
   OVER_TWELVE_MONTHS: '12+ months',
 }
 const BUDGET_LABELS = {
-  UNDER_50K: 'Under ₹50L',
-  RANGE_50K_200K: '₹50L – ₹2Cr',
-  RANGE_200K_500K: '₹2Cr – ₹5Cr',
-  OVER_500K: '₹5Cr+',
+  UNDER_50K: 'Under $50K (~₹40L)',
+  RANGE_50K_200K: '$50K – $200K (~₹40L–₹1.6Cr)',
+  RANGE_200K_500K: '$200K – $500K (~₹1.6Cr–₹4Cr)',
+  OVER_500K: '$500K+ (~₹4Cr+)',
 }
 
 function SummaryRow({ label, value, mono }) {

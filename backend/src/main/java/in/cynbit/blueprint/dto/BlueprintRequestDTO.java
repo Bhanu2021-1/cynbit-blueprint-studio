@@ -31,7 +31,7 @@ public class BlueprintRequestDTO {
     @NotBlank(message = "Timeline preference is required")
     private String timeline;
 
-    /** One of: UNDER_50K, RANGE_50K_200K, RANGE_200K_500K, OVER_500K (INR) */
+    /** One of: UNDER_50K, RANGE_50K_200K, RANGE_200K_500K, OVER_500K (USD / INR equivalent) */
     @NotBlank(message = "Budget range is required")
     private String budgetRange;
 

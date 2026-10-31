@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Clock, IndianRupee, AlertCircle } from 'lucide-react'
+import { Clock, Banknote, AlertCircle } from 'lucide-react'
 
 const TIMELINE_OPTIONS = [
   { id: 'UNDER_3_MONTHS', label: 'Under 3 months', tag: 'Expedited', note: 'Requires tight scope control and fast review cycles.' },
@@ -10,10 +10,10 @@ const TIMELINE_OPTIONS = [
 ]
 
 const BUDGET_OPTIONS = [
-  { id: 'UNDER_50K', label: 'Under ₹50L', sub: 'Seed / bootstrap' },
-  { id: 'RANGE_50K_200K', label: '₹50L – ₹2Cr', sub: 'Growth-stage investment' },
-  { id: 'RANGE_200K_500K', label: '₹2Cr – ₹5Cr', sub: 'Scale-up programme' },
-  { id: 'OVER_500K', label: '₹5Cr+', sub: 'Enterprise initiative' },
+  { id: 'UNDER_50K', label: 'Under $50K (~₹40L)', sub: 'Seed / bootstrap MVP' },
+  { id: 'RANGE_50K_200K', label: '$50K – $200K (~₹40L–₹1.6Cr)', sub: 'Growth-stage investment' },
+  { id: 'RANGE_200K_500K', label: '$200K – $500K (~₹1.6Cr–₹4Cr)', sub: 'Scale-up programme' },
+  { id: 'OVER_500K', label: '$500K+ (~₹4Cr+)', sub: 'Enterprise initiative' },
 ]
 
 function FieldError({ message }) {
@@ -98,7 +98,7 @@ export default function Step3Timeline({ formData, onChange, errors }) {
         {/* ── Budget ── */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.09 }}>
           <OptionGroup
-            icon={IndianRupee}
+            icon={Banknote}
             title="Indicative budget range"
             hint="No commitment required — helps propose the right engagement model"
           >

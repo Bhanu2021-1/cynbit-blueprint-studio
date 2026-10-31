@@ -25,7 +25,9 @@ public class BlueprintGenerationService {
             "This blueprint is a preliminary advisory document generated from your " +
             "inputs using Cynbit's structured recommendation framework. It does not " +
             "constitute a formal quote, binding proposal, or guarantee of delivery " +
-            "timelines or costs. Actual scope, timeline and investment will be " +
+            "timelines or costs. Suggested features, technology stacks, and roadmap " +
+            "milestones represent recommended scope for scoping discovery, not contracted " +
+            "or pre-built deliverables. Actual scope, timeline and investment will be " +
             "confirmed after a discovery session with the Cynbit engineering team.";
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -59,7 +61,7 @@ public class BlueprintGenerationService {
 
     String buildProjectTitle(BlueprintRequestDTO req) {
         String company = (req.getCompanyName() != null && !req.getCompanyName().isBlank())
-                ? req.getCompanyName() + ": " : "";
+                ? req.getCompanyName().trim() + ": " : "";
         // Use ASCII separator to avoid charset issues across environments
         return switch (req.getServiceType()) {
             case "AI_AUTOMATION"        -> company + "Autonomous AI Workflow Platform";
@@ -79,7 +81,10 @@ public class BlueprintGenerationService {
         String serviceLabel = resolveServiceLabel(req.getServiceType());
         String complexityLabel = resolveComplexityLabel(req.getComplexity());
         String company = (req.getCompanyName() != null && !req.getCompanyName().isBlank())
-                ? req.getCompanyName() + " - " : "your organisation";
+                ? req.getCompanyName().trim()
+                : (req.getContactName() != null && !req.getContactName().isBlank()
+                    ? req.getContactName().trim() + "'s team"
+                    : "your organisation");
 
         return String.format(
             "This blueprint outlines a %s %s engagement for %s, focused on delivering " +
@@ -507,10 +512,10 @@ public class BlueprintGenerationService {
 
     String resolveBudgetNote(String budgetRange) {
         return switch (budgetRange) {
-            case "UNDER_50K"       -> "Indicative range: ₹20L–₹50L. Optimised for focused MVP delivery; careful scope management will be essential.";
-            case "RANGE_50K_200K"  -> "Indicative range: ₹50L–₹2Cr. Supports a well-rounded product with primary integrations and QA.";
-            case "RANGE_200K_500K" -> "Indicative range: ₹2Cr–₹5Cr. Enables full-featured build with performance hardening, security audit and hypercare.";
-            case "OVER_500K"       -> "Indicative range: ₹5Cr+. Appropriate for enterprise-grade architecture with dedicated team, SLAs and extended support.";
+            case "UNDER_50K"       -> "Indicative range: Under $50K (~₹15L–₹40L). Optimised for focused MVP delivery; careful scope management will be essential.";
+            case "RANGE_50K_200K"  -> "Indicative range: $50K–$200K (~₹40L–₹1.6Cr). Supports a well-rounded product with primary integrations and QA.";
+            case "RANGE_200K_500K" -> "Indicative range: $200K–$500K (~₹1.6Cr–₹4Cr). Enables full-featured build with performance hardening, security audit and hypercare.";
+            case "OVER_500K"       -> "Indicative range: $500K+ (~₹4Cr+). Appropriate for enterprise-grade architecture with dedicated team, SLAs and extended support.";
             default                 -> "Budget to be discussed in the discovery session.";
         };
     }

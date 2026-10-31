@@ -126,7 +126,7 @@ Generates a structured, deterministic advisory blueprint based on submitted proj
 - `serviceType`: `AI_AUTOMATION`, `SOFTWARE_DEVELOPMENT`, `CLOUD_INFRASTRUCTURE`, `DIGITAL_MARKETING`
 - `complexity`: `SMALL`, `MEDIUM`, `LARGE`, `ENTERPRISE`
 - `timeline`: `UNDER_3_MONTHS`, `THREE_TO_SIX_MONTHS`, `SIX_TO_TWELVE_MONTHS`, `OVER_TWELVE_MONTHS`
-- `budgetRange`: `UNDER_50K`, `RANGE_50K_200K`, `RANGE_200K_500K`, `OVER_500K`
+- `budgetRange`: `UNDER_50K` (Under $50K / ~₹40L), `RANGE_50K_200K` ($50K–$200K / ~₹40L–₹1.6Cr), `RANGE_200K_500K` ($200K–$500K / ~₹1.6Cr–₹4Cr), `OVER_500K` ($500K+ / ~₹4Cr+)
 
 **Validation Error Response (HTTP 400):**
 ```json
@@ -175,7 +175,7 @@ npm run dev
 
 ### Step 4: Run Test Suites
 ```bash
-# Backend unit tests (17 tests)
+# Backend automated tests (32 unit & integration tests)
 cd ../backend
 mvn test
 

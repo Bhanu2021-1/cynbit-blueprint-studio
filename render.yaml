@@ -11,3 +11,4 @@ services:
         value: 8080
       - key: APP_CORS_ALLOWED_ORIGINS
         value: https://*.vercel.app,http://localhost:5173
+

@@ -117,7 +117,7 @@ cynbit-blueprint-studio/
 ### 4-Step Discovery Wizard:
 1. **Step 1 — Service Selection:** Visual interactive cards for AI Automation, Software Development, Cloud Infrastructure, and Digital Marketing & SEO.
 2. **Step 2 — Business Goals & Capabilities:** Free-text goal input with real-time character counting (10–2000 chars), dynamic capability chips that adapt to the selected service, and complexity tier selection.
-3. **Step 3 — Timeline & Budget:** Indicative timeline brackets (from `<3 months` to `12+ months`) and budget options (bootstrap `<₹50L` to enterprise `₹5Cr+`).
+3. **Step 3 — Timeline & Budget:** Indicative timeline brackets (from `<3 months` to `12+ months`) and dual-currency budget brackets (`Under $50K (~₹40L)` to `$500K+ (~₹4Cr+)`).
 4. **Step 4 — Review & Personalization:** Complete summary of selected parameters with optional contact name and company name fields.
 
 ### Key UX Details:
@@ -177,7 +177,7 @@ The backend follows clean layered architecture principles:
   "complexityLabel": "Mid-Scale",
   "executiveSummary": "This blueprint outlines a mid-scale custom software development engagement for Verma Enterprises...",
   "indicativeTimelineRange": "12–20 weeks",
-  "indicativeBudgetNote": "Indicative range: ₹50L–₹2Cr. Supports a well-rounded product with primary integrations and QA.",
+  "indicativeBudgetNote": "Indicative range: $50K–$200K (~₹40L–₹1.6Cr). Supports a well-rounded product with primary integrations and QA.",
   "mvpFeatures": [
     {
       "category": "Core Application",
@@ -235,29 +235,50 @@ The backend follows clean layered architecture principles:
 
 ## 10. Testing & Verification
 
-### Backend Unit Tests (`mvn test`):
-- Test Class: [`BlueprintGenerationServiceTest.java`](file:///d:/Cynbit%20prototype/cynbit-blueprint-studio/backend/src/test/java/in/cynbit/blueprint/service/BlueprintGenerationServiceTest.java)
-- **17 test cases passed (0 failures, 0 errors, 0 skipped)**
-- Tests cover:
+### Backend Automated Test Suite (`mvn test`):
+- **Total Test Cases Passed: 32 (0 failures, 0 errors, 0 skipped)**
+- **Unit Test Class:** [`BlueprintGenerationServiceTest.java`](file:///d:/Cynbit%20prototype/cynbit-blueprint-studio/backend/src/test/java/in/cynbit/blueprint/service/BlueprintGenerationServiceTest.java) (25 tests)
   1. Full blueprint generation for AI Automation
-  2. Software Development service resolution
-  3. Complexity-driven roadmap scaling (e.g. 4 phases for Enterprise vs. 2 for Focused MVP)
+  2. Software Development service label and stack resolution
+  3. Complexity-driven roadmap scaling (4 phases for Enterprise vs. 2 for Focused MVP)
   4. Parameterized tech stack validation across all 4 service types
-  5. Dynamic project title construction with and without company names
-  6. Parameterized timeline resolution
-  7. Reflection of selected capabilities in the executive summary
-  8. Service-specific technical assumptions (e.g. containerization requirements for Cloud, sample datasets for AI)
-  9. Enterprise dedicated governance assumptions
+  5. Dynamic project title construction with company name trimming
+  6. Project title fallback handling when company name is null
+  7. Parameterized timeline resolution across all timeline/complexity combinations
+  8. Executive summary reflects selected capabilities
+  9. Service-specific technical assumptions (containerization for Cloud, dataset for AI, CMS access for Marketing)
+  10. Enterprise governance assumptions (dedicated technical lead and SLA compliance)
+  11. Executive summary personalization without stray hyphens (`for Apex Logistics, focused on...`)
+  12. Executive summary personalization fallback to contact team when company is omitted
+  13. Executive summary personalization fallback to generic organisation when both are omitted
+  14. Parameterized budget note resolution confirming dual-currency formatting ($ and ₹) across all 4 tiers
+  15. Complete service distinctiveness test verifying all 4 service types return non-overlapping titles, categories, stacks, and phased roadmaps
+- **REST Controller Integration Test Class:** [`BlueprintControllerIntegrationTest.java`](file:///d:/Cynbit%20prototype/cynbit-blueprint-studio/backend/src/test/java/in/cynbit/blueprint/controller/BlueprintControllerIntegrationTest.java) (7 tests)
+  1. `GET /api/health` returns HTTP 200 with `status: "UP"`, service name, and version
+  2. `POST /api/blueprints` for `AI_AUTOMATION` returns HTTP 200 with validated advisory fields
+  3. `POST /api/blueprints` for `SOFTWARE_DEVELOPMENT` returns HTTP 200 with full stack
+  4. `POST /api/blueprints` for `CLOUD_INFRASTRUCTURE` returns HTTP 200 with IaC layers
+  5. `POST /api/blueprints` for `DIGITAL_MARKETING` returns HTTP 200 with SEO layers
+  6. `POST /api/blueprints` with missing required fields returns HTTP 400 with structured field errors
+  7. `POST /api/blueprints` with `businessGoals` < 10 characters returns HTTP 400 with character constraint violation
 
-### Frontend Code Quality (`npm run lint`):
-- ESLint 9 Flat Config: **0 errors, 0 warnings**.
+### Live Spring Boot JAR Verification:
+- Packaged executable JAR: `target/blueprint-studio-api-1.0.0.jar`
+- Probed live endpoints over local TCP:
+  - `GET /api/health` -> HTTP 200 `{"status":"UP","service":"Cynbit Blueprint Studio API","version":"1.0.0"}`
+  - `POST /api/blueprints` tested for all 4 service types; verified distinct titles, categories, and dual-currency budget notes
+  - `POST /api/blueprints` with empty payload verified HTTP 400 validation rejection
+- Verified zero stray hyphens in executive summaries across all generated payloads
 
-### Production Build (`npm run build`):
-- Vite output: `dist/index.html` (1.12 kB), CSS (42.47 kB), JS (347 kB).
+### Frontend Quality & Production Build:
+- **Lint Check (`npm run lint`):** ESLint 9 Flat Config: **0 errors, 0 warnings**.
+- **Production Build (`npm run build`):** Vite output generated in `frontend/dist/` (HTML: 1.12 kB, CSS: 42.47 kB, JS: 347 kB).
 
-### Live Integration Smoke Test:
-- Backend booted via `java -jar target/blueprint-studio-api-1.0.0.jar`.
-- Verified HTTP 200 on `/api/health` and verified JSON response from `/api/blueprints`.
+### Quality Assurance Audit Findings & Resolutions:
+1. **Budget Currency Alignment:** Resolved the discrepancy where enum `UNDER_50K` was ambiguously labeled as `Under ₹50L`. Standardized across backend, frontend wizard, review screen, and DTO on dual-currency consulting tiers (`Under $50K (~₹40L)`, `$50K–$200K (~₹40L–₹1.6Cr)`, `$200K–$500K (~₹1.6Cr–₹4Cr)`, `$500K+ (~₹4Cr+)`), preserving backward compatibility with the existing enum and unit test contracts.
+2. **Personalization Formatting:** Fixed the stray hyphen bug in `buildExecutiveSummary` (previously `req.getCompanyName() + " - "`), ensuring grammatically clean text (`"...engagement for Apex Logistics, focused on..."`). Added contact name badge display in the results header.
+3. **Advisory Framing:** Verified all results headers, badges, and disclaimers explicitly label features, technologies, and milestones as preliminary recommendations for scoping discovery, not contracted deliverables.
+4. **Action Handlers:** Verified Copy Summary (structured plain text), Export / Print PDF (print stylesheet), Email Cynbit Inquiry (`mailto:opportunities@cynbit.in`), and Edit Inputs (draft preserved in `localStorage`).
 
 ---
 
@@ -328,3 +349,4 @@ Verma Enterprises: Custom Software Development Blueprint
 
 *Cynbit Technologies Private Limited · 32/115 RHB, Pratap Nagar, Jaipur, Rajasthan 302033*  
 *Contact: opportunities@cynbit.in · "Engineered for Optimism"*
+

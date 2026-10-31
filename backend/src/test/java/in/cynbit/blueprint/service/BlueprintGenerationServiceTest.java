@@ -156,6 +156,94 @@ class BlueprintGenerationServiceTest {
         assertThat(assumptions).anyMatch(a -> a.toLowerCase().contains("project manager"));
     }
 
+    // ── Executive summary personalization & formatting tests ─────────────────
+
+    @Test
+    @DisplayName("buildExecutiveSummary() formats company name without stray hyphens")
+    void buildExecutiveSummary_withCompanyName_noStrayHyphen() {
+        BlueprintRequestDTO req = buildRequest("SOFTWARE_DEVELOPMENT", "MEDIUM", "THREE_TO_SIX_MONTHS", "RANGE_50K_200K");
+        req.setCompanyName("Apex Logistics");
+        req.setContactName("Sarah Connor");
+
+        String summary = service.buildExecutiveSummary(req);
+
+        assertThat(summary).contains("for Apex Logistics, focused on delivering");
+        assertThat(summary).doesNotContain("Apex Logistics - ");
+    }
+
+    @Test
+    @DisplayName("buildExecutiveSummary() falls back to contact team when company is omitted")
+    void buildExecutiveSummary_withOnlyContactName_usesContactTeam() {
+        BlueprintRequestDTO req = buildRequest("AI_AUTOMATION", "SMALL", "UNDER_3_MONTHS", "UNDER_50K");
+        req.setCompanyName(null);
+        req.setContactName("Rahul Verma");
+
+        String summary = service.buildExecutiveSummary(req);
+
+        assertThat(summary).contains("for Rahul Verma's team, focused on delivering");
+        assertThat(summary).doesNotContain("null");
+    }
+
+    @Test
+    @DisplayName("buildExecutiveSummary() falls back to 'your organisation' when company and contact are omitted")
+    void buildExecutiveSummary_withoutCompanyOrContact_usesYourOrganisation() {
+        BlueprintRequestDTO req = buildRequest("AI_AUTOMATION", "SMALL", "UNDER_3_MONTHS", "UNDER_50K");
+        req.setCompanyName(null);
+        req.setContactName(null);
+
+        String summary = service.buildExecutiveSummary(req);
+
+        assertThat(summary).contains("for your organisation, focused on delivering");
+    }
+
+    // ── Budget note resolver tests (dual currency representation) ─────────────
+
+    @ParameterizedTest(name = "resolveBudgetNote({0}) contains {1}")
+    @CsvSource({
+        "UNDER_50K,Under $50K",
+        "RANGE_50K_200K,$50K–$200K",
+        "RANGE_200K_500K,$200K–$500K",
+        "OVER_500K,$500K+"
+    })
+    void resolveBudgetNote_allTiers_containsExpectedLabels(String tier, String expectedSnippet) {
+        String note = service.resolveBudgetNote(tier);
+        assertThat(note).contains(expectedSnippet);
+        assertThat(note).contains("₹");
+    }
+
+    // ── Service type distinctiveness tests ───────────────────────────────────
+
+    @Test
+    @DisplayName("All 4 service types produce distinct, appropriately targeted blueprints")
+    void allServiceTypes_produceDistinctBlueprints() {
+        BlueprintResponseDTO ai = service.generate(buildRequest("AI_AUTOMATION", "MEDIUM", "THREE_TO_SIX_MONTHS", "RANGE_50K_200K"));
+        BlueprintResponseDTO soft = service.generate(buildRequest("SOFTWARE_DEVELOPMENT", "MEDIUM", "THREE_TO_SIX_MONTHS", "RANGE_50K_200K"));
+        BlueprintResponseDTO cloud = service.generate(buildRequest("CLOUD_INFRASTRUCTURE", "MEDIUM", "THREE_TO_SIX_MONTHS", "RANGE_50K_200K"));
+        BlueprintResponseDTO mktg = service.generate(buildRequest("DIGITAL_MARKETING", "MEDIUM", "THREE_TO_SIX_MONTHS", "RANGE_50K_200K"));
+
+        // Titles are distinct
+        assertThat(ai.getProjectTitle()).contains("Autonomous AI");
+        assertThat(soft.getProjectTitle()).contains("Custom Software Development");
+        assertThat(cloud.getProjectTitle()).contains("Cloud Architecture");
+        assertThat(mktg.getProjectTitle()).contains("Digital Growth & SEO");
+
+        // Service categories are distinct
+        assertThat(ai.getServiceCategory()).isEqualTo("AI Automation & Autonomous Agents");
+        assertThat(soft.getServiceCategory()).isEqualTo("Custom Software Development");
+        assertThat(cloud.getServiceCategory()).isEqualTo("Cloud Infrastructure & Architecture");
+        assertThat(mktg.getServiceCategory()).isEqualTo("Digital Marketing & Technical SEO");
+
+        // Stack layers reflect the service domain
+        assertThat(ai.getRecommendedStack().layers()).anyMatch(l -> l.layer().contains("Orchestration") || l.layer().contains("Agent"));
+        assertThat(soft.getRecommendedStack().layers()).anyMatch(l -> l.layer().contains("Backend") || l.layer().contains("Database"));
+        assertThat(cloud.getRecommendedStack().layers()).anyMatch(l -> l.layer().contains("Infrastructure as Code"));
+        assertThat(mktg.getRecommendedStack().layers()).anyMatch(l -> l.layer().contains("SEO") || l.layer().contains("Web Platform"));
+
+        // Disclaimers are clearly advisory
+        assertThat(ai.getDisclaimer()).contains("preliminary advisory document");
+        assertThat(ai.getDisclaimer()).contains("not contracted or pre-built deliverables");
+    }
+
     // ── Helper ────────────────────────────────────────────────────────────────
 
     private BlueprintRequestDTO buildRequest(String serviceType, String complexity, String timeline, String budget) {

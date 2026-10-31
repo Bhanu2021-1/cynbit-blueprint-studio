@@ -8,10 +8,11 @@ import {
   ArrowRight,
   FileText,
   Clock,
-  IndianRupee,
+  Banknote,
   ShieldCheck,
   Check,
   Building2,
+  User,
 } from 'lucide-react'
 import ResultActions from './ResultActions'
 
@@ -98,6 +99,12 @@ export default function BlueprintResult({ blueprint, formData, onEdit }) {
               <span className="text-xs px-3 py-1 rounded-full border border-[#1a2d48]/80 bg-[#121c2e] text-slate-300 font-medium">
                 Complexity: {blueprint.complexityLabel}
               </span>
+              {formData?.contactName && (
+                <span className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-[#1a2d48]/80 bg-[#121c2e] text-slate-400 font-medium">
+                  <User size={12} className="text-slate-500" />
+                  {formData.contactName}
+                </span>
+              )}
               {formData?.companyName && (
                 <span className="inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full border border-[#1a2d48]/80 bg-[#121c2e] text-slate-400 font-medium">
                   <Building2 size={12} className="text-slate-500" />
@@ -144,7 +151,7 @@ export default function BlueprintResult({ blueprint, formData, onEdit }) {
               </div>
 
               <div className="flex items-start gap-3 p-4 rounded-xl bg-[#121c2e] border border-[#1a2d48]/70">
-                <IndianRupee size={16} className="text-cyan-400 mt-0.5 shrink-0" />
+                <Banknote size={16} className="text-cyan-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
                     Indicative Budget Guidance
