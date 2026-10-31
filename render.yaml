@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cynbit-blueprint-api
+    env: java
+    rootDir: backend
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/blueprint-studio-api-1.0.0.jar
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://*.vercel.app,http://localhost:5173

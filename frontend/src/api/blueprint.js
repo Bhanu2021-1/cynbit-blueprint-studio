@@ -2,16 +2,16 @@
  * Blueprint API client
  *
  * Calls the Spring Boot REST API at POST /api/blueprints.
- * During local development, Vite proxies /api -> http://localhost:8080.
- * In production on Vercel, set VITE_API_BASE_URL to your deployed backend URL.
+ * In development, Vite proxies /api -> http://localhost:8080.
+ * In production (e.g. Vercel), set VITE_API_BASE_URL to your deployed backend URL.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
-  ? `${import.meta.env.VITE_API_BASE_URL}`
-  : '' // empty = relative URL (works via Vite proxy)
+// Strip trailing slashes to prevent malformed URLs like https://api.com//api/blueprints
+const rawBase = import.meta.env.VITE_API_BASE_URL || ''
+const API_BASE = rawBase.replace(/\/+$/, '')
 
 /**
- * Submit wizard inputs to the Spring Boot backend and receive a blueprint.
+ * Submit wizard inputs to the Spring Boot backend and receive a structured blueprint.
  *
  * @param {Object} payload - The wizard form data matching BlueprintRequestDTO
  * @returns {Promise<Object>} - The BlueprintResponseDTO from the server
@@ -30,9 +30,10 @@ export async function generateBlueprint(payload) {
       },
       body: JSON.stringify(payload),
     })
-  } catch {
+  } catch (_networkError) {
+    const targetDesc = API_BASE ? API_BASE : 'backend service'
     throw {
-      message: 'Could not connect to the Spring Boot backend. Please ensure the backend server is running on http://localhost:8080.',
+      message: `Could not connect to the Spring Boot API (${targetDesc}). Please verify the server is running and CORS allows this domain.`,
       fieldErrors: {},
       status: 0,
     }
@@ -41,16 +42,16 @@ export async function generateBlueprint(payload) {
   let data
   try {
     data = await response.json()
-  } catch {
+  } catch (_parseError) {
     throw {
-      message: `Backend returned HTTP ${response.status} with a non-JSON response.`,
+      message: `Backend returned HTTP ${response.status} with an unparseable response.`,
       fieldErrors: {},
       status: response.status,
     }
   }
 
   if (!response.ok) {
-    // Shape from GlobalExceptionHandler: { status, message, fieldErrors, timestamp }
+    // Structured response from GlobalExceptionHandler: { status, message, fieldErrors, timestamp }
     throw {
       message: data.message || 'Validation or processing error occurred. Please review your inputs.',
       fieldErrors: data.fieldErrors || {},
