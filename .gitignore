@@ -1,0 +1,14 @@
+# Node
+node_modules/
+dist/
+.env.local
+.env
+
+# Java / Maven
+backend/target/
+backend/.mvn/
+
+# Misc
+.DS_Store
+*.log
+
